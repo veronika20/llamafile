@@ -1,7 +1,7 @@
 diff --git a/tools/server/CMakeLists.txt b/tools/server/CMakeLists.txt
 index 06df3ee4..356f2872 100644
---- a/tools/server/CMakeLists.txt
-+++ b/tools/server/CMakeLists.txt
+--- a/llama.cpp/tools/server/CMakeLists.txt
++++ b/llama.cpp/tools/server/CMakeLists.txt
 @@ -1,4 +1,4 @@
 -set(TARGET llama-server)
 +set(TARGET llamafile)

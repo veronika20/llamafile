@@ -1,7 +1,7 @@
 diff --git a/common/CMakeLists.txt b/common/CMakeLists.txt
 index fe290bf8..05384093 100644
---- a/common/CMakeLists.txt
-+++ b/common/CMakeLists.txt
+--- a/llama.cpp/common/CMakeLists.txt
++++ b/llama.cpp/common/CMakeLists.txt
 @@ -97,14 +97,11 @@ if (LLAMA_OPENSSL)
          set(SAVED_CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES})
          set(CMAKE_REQUIRED_INCLUDES ${OPENSSL_INCLUDE_DIR})

@@ -1,7 +1,7 @@
 diff --git a/src/llama-hparams.cpp b/src/llama-hparams.cpp
 index 514d6538..498be88d 100644
---- a/src/llama-hparams.cpp
-+++ b/src/llama-hparams.cpp
+--- a/llama.cpp/src/llama-hparams.cpp
++++ b/llama.cpp/src/llama-hparams.cpp
 @@ -1,6 +1,7 @@
  #include "llama-hparams.h"
  
