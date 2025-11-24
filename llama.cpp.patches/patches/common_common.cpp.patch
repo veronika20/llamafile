@@ -1,25 +1,22 @@
 diff --git a/common/common.cpp b/common/common.cpp
 --- a/llama.cpp/common/common.cpp
 +++ b/llama.cpp/common/common.cpp
-@@ -889,6 +889,21 @@ std::string fs_get_cache_directory() {
+@@ -889,6 +889,18 @@ std::string fs_get_cache_directory() {
          cache_directory = std::getenv("HOME") + std::string("/Library/Caches/");
  #elif defined(_WIN32)
          cache_directory = std::getenv("LOCALAPPDATA");
-+// mmojo-server START
-+// This could be automated by searching for "error Unknown architecture" and inserting the block 2 lines before. -Brad 2025-11-05
++// llamafile START
 +#elif defined(COSMOCC)
 +        // We don't know what OS we are running on at compile time, just CPU architecture.
 +        // try various environment variables, fall back to ~/.cache.
-+        // FUTURE: Checkj if the directories actually exist.
-+        cache_directory = std::getenv("LOCALAPPDATA");
-+        if (cache_directory == "") {
-+            cache_directory = std::getenv("XDG_CACHE_HOME");
-+        }
-+        if (cache_directory == "") {
-+            cache_directory = std::getenv("HOME") + std::string("/.cache/");
-+        }
-+        
-+// mmojo-server END                
++         if (std::getenv("LOCALAPPDATA")) {
++             cache_directory = std::getenv("LOCALAPPDATA");
++        } else if (std::getenv("XDG_CACHE_HOME")) {
++             cache_directory = std::getenv("XDG_CACHE_HOME");
++         } else {
++             cache_directory = std::getenv("HOME") + std::string("/.cache/");
++         }
++// llamafile END
  #else
  #  error Unknown architecture
  #endif
