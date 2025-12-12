@@ -336,7 +336,7 @@ $(LLAMA_OBJS): private CCFLAGS += \
 	-DLLAMA_COMMIT=\"$(LLAMA_COMMIT)\"
 
 # Base flags for all objects
-$(LLAMA_CPP_OBJS): private CCFLAGS += \
+$(LLAMA_CPP_OBJS) $(TOOL_SERVER_OBJS): private CCFLAGS += \
 	-DCOSMOCC=1 \
 	-DGGML_MULTIPLATFORM \
 	-DGGML_USE_LLAMAFILE \
