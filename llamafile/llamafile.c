@@ -17,8 +17,9 @@
 
 #include "llamafile.h"
 #include "zip.h"
-#include <assert.h>
 #include <cosmo.h>
+#include <libc/assert.h>
+#include <libc/str/str.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
@@ -330,7 +331,7 @@ size_t llamafile_tell(struct llamafile *file) {
     if (!file->fp)
         return file->position;
     long ret = ftell(file->fp);
-    npassert(ret != -1); // shouldn't fail because we seeked earlier
+    assert(ret != -1); // shouldn't fail because we seeked earlier
     return (size_t)ret;
 }
 
@@ -410,4 +411,158 @@ void llamafile_unref(struct llamafile *file) {
 
 void llamafile_close(struct llamafile *file) {
     llamafile_unref(file);
+}
+
+// ==============================================================================
+// FLAG variable definitions
+// ==============================================================================
+// These are Cosmopolitan FLAG system variables. For migration to other
+// platforms, replace these with your own configuration system.
+
+bool FLAGS_READY = false;
+bool FLAG_ascii = false;
+bool FLAG_completion_mode = false;
+bool FLAG_fast = false;
+bool FLAG_iq = false;
+bool FLAG_log_disable = false;
+bool FLAG_mlock = false;
+bool FLAG_mmap = true;
+bool FLAG_no_display_prompt = false;
+bool FLAG_nocompile = false;
+bool FLAG_nologo = false;
+bool FLAG_precise = false;
+bool FLAG_recompile = false;
+bool FLAG_tinyblas = false;
+bool FLAG_trace = false;
+bool FLAG_trap = false;
+bool FLAG_unsecure = false;
+bool FLAG_v2 = false;
+const char *FLAG_chat_template = NULL;
+const char *FLAG_db = NULL;
+const char *FLAG_db_startup_sql = NULL;
+const char *FLAG_file = NULL;
+const char *FLAG_ip_header = NULL;
+const char *FLAG_listen = "127.0.0.1:8080";
+const char *FLAG_mmproj = NULL;
+const char *FLAG_model = NULL;
+const char *FLAG_prompt = NULL;
+const char *FLAG_url_prefix = "";
+const char *FLAG_www_root = NULL;
+double FLAG_token_rate = 0;
+float FLAG_decay_growth = 0;
+float FLAG_frequency_penalty = 0;
+float FLAG_presence_penalty = 0;
+float FLAG_reserve_tokens = 0;
+float FLAG_temperature = 0.8;
+float FLAG_top_p = 0.95;
+int FLAG_batch = 512;
+int FLAG_ctx_size = 0;
+int FLAG_decay_delay = 0;
+int FLAG_flash_attn = 0;
+int FLAG_gpu = LLAMAFILE_GPU_AUTO;
+int FLAG_http_ibuf_size = 65536;
+int FLAG_http_obuf_size = 65536;
+int FLAG_keepalive = 5;
+int FLAG_main_gpu = 0;
+int FLAG_n_gpu_layers = -1;
+int FLAG_slots = 1;
+int FLAG_split_mode = 0;
+int FLAG_threads = 0;
+int FLAG_threads_batch = 0;
+int FLAG_token_burst = 0;
+int FLAG_token_cidr = 0;
+int FLAG_ubatch = 512;
+int FLAG_verbose = 0;
+int FLAG_warmup = 0;
+int FLAG_workers = 0;
+unsigned FLAG_seed = 0;
+
+// ==============================================================================
+// Utility functions
+// ==============================================================================
+
+bool llamafile_has(char **a, const char *x) {
+    for (int i = 0; a[i]; ++i)
+        if (!strcmp(a[i], x))
+            return true;
+    return false;
+}
+
+// ==============================================================================
+// GPU stubs
+// ==============================================================================
+// These are stub implementations for GPU detection. In the full llamafile,
+// these check for CUDA/ROCm/Metal support. For this simplified TUI build,
+// we default to CPU-only operation.
+
+bool llamafile_has_cuda(void) {
+    // In full llamafile, this dynamically loads CUDA/ROCm support
+    return false;
+}
+
+bool llamafile_has_metal(void) {
+#ifdef __APPLE__
+    // On macOS ARM64 (Apple Silicon), Metal is typically available
+    // For proper implementation, this would dynamically load Metal support
+#ifdef __aarch64__
+    return IsXnuSilicon();
+#endif
+#endif
+    return false;
+}
+
+bool llamafile_has_amd_gpu(void) {
+    return false;
+}
+
+bool llamafile_has_gpu(void) {
+    return llamafile_has_metal() || llamafile_has_cuda();
+}
+
+const char *llamafile_describe_gpu(void) {
+    switch (FLAG_gpu) {
+    case LLAMAFILE_GPU_AUTO:
+        return "auto";
+    case LLAMAFILE_GPU_AMD:
+        return "amd";
+    case LLAMAFILE_GPU_APPLE:
+        return "apple";
+    case LLAMAFILE_GPU_NVIDIA:
+        return "nvidia";
+    case LLAMAFILE_GPU_DISABLE:
+        return "disabled";
+    default:
+        return "error";
+    }
+}
+
+int llamafile_gpu_parse(const char *s) {
+    if (!strcasecmp(s, "disable") || !strcasecmp(s, "disabled"))
+        return LLAMAFILE_GPU_DISABLE;
+    if (!strcasecmp(s, "auto"))
+        return LLAMAFILE_GPU_AUTO;
+    if (!strcasecmp(s, "amd") || !strcasecmp(s, "rocblas") || !strcasecmp(s, "rocm") || !strcasecmp(s, "hip"))
+        return LLAMAFILE_GPU_AMD;
+    if (!strcasecmp(s, "apple") || !strcasecmp(s, "metal"))
+        return LLAMAFILE_GPU_APPLE;
+    if (!strcasecmp(s, "nvidia") || !strcasecmp(s, "cublas"))
+        return LLAMAFILE_GPU_NVIDIA;
+    return LLAMAFILE_GPU_ERROR;
+}
+
+int llamafile_gpu_layers(int n_gpu_layers) {
+    if (FLAG_gpu == LLAMAFILE_GPU_DISABLE)
+        return 0;
+    if (n_gpu_layers < 0 && FLAG_gpu > 0)
+        n_gpu_layers = INT_MAX;
+    if (n_gpu_layers <= 0 && llamafile_has_metal())
+        n_gpu_layers = INT_MAX;
+    if (n_gpu_layers > 0 && !llamafile_has_gpu()) {
+        FLAG_gpu = LLAMAFILE_GPU_DISABLE;
+        n_gpu_layers = 0;
+    }
+    if (n_gpu_layers <= 0) {
+        FLAG_gpu = LLAMAFILE_GPU_DISABLE;
+    }
+    return n_gpu_layers;
 }
