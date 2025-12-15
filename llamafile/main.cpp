@@ -31,7 +31,6 @@
 
 #include "chatbot.h"
 #include "llamafile.h"
-#include <cstring>
 #include <iostream>
 #include <set>
 #include <string>
@@ -61,29 +60,33 @@ static enum Program determine_program(char *argv[]) {
     return prog;
 }
 
-int removeArgs(int argc, char* argv[],
-                      const std::set<std::string>& args_to_remove,
-                      bool remove_values = true) {
-    int new_argc = 0;
+int removeArgs(int argc, char* argv[], const std::set<std::string>& args_to_remove) {
 
-    for (int i = 0; i < argc; i++) {
-        std::string current_arg = argv[i];
+    int write_idx = 0;
+    for (int read_idx = 0; read_idx < argc; ++read_idx) {
+        std::string current_arg = argv[read_idx];
 
-        // Check if this argument should be removed
-        if (args_to_remove.find(current_arg) != args_to_remove.end()) {
-            // If remove_values is true and next arg doesn't start with '-', skip it too
-            if (remove_values && i + 1 < argc && argv[i + 1][0] != '-') {
-                i++; // Skip the value
-            }
-            continue; // Skip this argument
+        // Check if the current argument should be removed.
+        // .count() is a clean way to check for existence in a set.
+        if (args_to_remove.count(current_arg)) {
+            continue; // Skip the current argument (and its value if applicable).
         }
 
-        // Keep this argument - shift it down if needed
-        argv[new_argc++] = argv[i];
+        // Keep this argument.
+        // If the write position is different from the read position, copy the pointer.
+        if (write_idx != read_idx) {
+            argv[write_idx] = argv[read_idx];
+        }
+        write_idx++;
     }
 
-    return new_argc;
+    // `write_idx` is now the new number of arguments
+    // NULL out argv[write_idx] to guarantee that argv[argc] == NULL 
+    argv[write_idx] = nullptr;
+
+    return write_idx;
 }
+
 
 int main(int argc, char **argv, char **envp) {
 #ifdef COSMOCC
