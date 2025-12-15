@@ -13,7 +13,7 @@ LLAMAFILE_VERSION_STRING := 0.10.0-dev
 # Include paths
 # ==============================================================================
 
-LLAMAFILE_INCS := \
+LLAMAFILE_INCLUDES := \
 	-iquote llamafile \
 	-iquote llama.cpp/common \
 	-iquote llama.cpp/include \
@@ -30,7 +30,7 @@ LLAMAFILE_INCS := \
 # ==============================================================================
 
 LLAMAFILE_CPPFLAGS := \
-	$(LLAMAFILE_INCS) \
+	$(LLAMAFILE_INCLUDES) \
 	-DLLAMAFILE_VERSION_STRING=\"$(LLAMAFILE_VERSION_STRING)\" \
     -DCOSMOCC=1
 
@@ -165,7 +165,7 @@ LLAMAFILE_DEPS := \
 
 # Include paths needed for server compilation
 LLAMAFILE_SERVER_INCS := \
-	$(LLAMAFILE_INCS) \
+	$(LLAMAFILE_INCLUDES) \
 	-iquote llama.cpp/tools/server \
 	-iquote o/$(MODE)/llama.cpp/tools/server
 
@@ -197,7 +197,7 @@ o/$(MODE)/llamafile/llamafile: \
 
 o/$(MODE)/llamafile/%.o: llamafile/%.c
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) $(LLAMAFILE_INCS) -c -o $@ $<
+	$(CC) $(CFLAGS) $(LLAMAFILE_INCLUDES) -c -o $@ $<
 
 o/$(MODE)/llamafile/%.o: llamafile/%.cpp
 	@mkdir -p $(@D)
