@@ -4,22 +4,37 @@ diff --git a/tools/server/server.cpp b/tools/server/server.cpp
 @@ -15,6 +15,10 @@
  #include <windows.h>
  #endif
-
+ 
 +#ifdef COSMOCC
 +#include <cosmo.h>
 +#endif
 +
  static std::function<void(int)> shutdown_handler;
  static std::atomic_flag is_terminating = ATOMIC_FLAG_INIT;
-
-@@ -66,6 +70,10 @@ static server_http_context::handler_t ex_wrapper(server_http_context::handler_t
+ 
+@@ -65,7 +69,8 @@ static server_http_context::handler_t ex_wrapper(server_http_context::handler_t
+     };
  }
-
- int main(int argc, char ** argv, char ** envp) {
-+    #ifdef COSMOCC
-+    argc = cosmo_args("/zip/.args", &argv);
-+    #endif
-+
+ 
+-int main(int argc, char ** argv, char ** envp) {
++// Core server logic - can be called from llamafile main.cpp or standalone main()
++int server_main(int argc, char ** argv, char ** envp) {
      // own arguments required by this example
      common_params params;
-
+ 
+@@ -304,3 +309,15 @@ int main(int argc, char ** argv, char ** envp) {
+ 
+     return 0;
+ }
++
++// Standalone entry point for llama-server executable
++// Not compiled when building as part of llamafile TUI (which has its own main)
++// Having this allows us to test cosmocc-compiled llama.cpp in isolation.
++#ifndef LLAMAFILE_TUI
++int main(int argc, char ** argv, char ** envp) {
++#ifdef COSMOCC
++    argc = cosmo_args("/zip/.args", &argv);
++#endif
++    return server_main(argc, argv, envp);
++}
++#endif

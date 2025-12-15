@@ -1,0 +1,13 @@
+diff --git a/ggml/src/ggml.c b/ggml/src/ggml.c
+--- a/llama.cpp/ggml/src/ggml.c
++++ b/llama.cpp/ggml/src/ggml.c
+@@ -268,7 +268,9 @@ static void ggml_log_internal_v(enum ggml_log_level level, const char * format,
+ void ggml_log_internal(enum ggml_log_level level, const char * format, ...) {
+     va_list args;
+     va_start(args, format);
++#ifndef LLAMAFILE_TUI
+     ggml_log_internal_v(level, format, args);
++#endif
+     va_end(args);
+ }
+ 
