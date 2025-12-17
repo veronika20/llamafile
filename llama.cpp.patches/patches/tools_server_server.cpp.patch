@@ -34,9 +34,19 @@ diff --git a/tools/server/server.cpp b/tools/server/server.cpp
      common_init();
  
      // struct that contains llama context and inference
-@@ -304,3 +314,15 @@ int main(int argc, char ** argv, char ** envp) {
+@@ -302,5 +312,25 @@ int main(int argc, char ** argv, char ** envp) {
+         llama_memory_breakdown_print(ctx_server.get_llama_context());
+     }
  
++#ifdef LLAMAFILE_TUI
++    // By now the program can safely exit:
++    // leave some time for llama_memory_breakdown_print
++    sleep(1);
++    // avoid dangling refs when TUI + llama.cpp + metal run together
++    _exit(0);
++#else
      return 0;
++#endif
  }
 +
 +// Standalone entry point for llama-server executable
